@@ -49,13 +49,15 @@ def generate(video_idx, out_dir, width, height, fps, duration_seconds, save_mp4=
 
     frames = np.zeros((total_frames, height, width), dtype=np.uint8)
 
-    mask = animator.create_image_mask(
-        params["text"], params["position"], font_size=params["font_size"]
+    mask = animator.create_text_mask(
+        params["text"], 
+        params["position"], 
+        font_size=params["font_size"],
     )
 
     writer=None
     if save_mp4:
-        fourcc = cv2.VideoWriter_fourcc(*"mp4")
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         mp4_path = os.path.join(out_dir, f"video_{video_idx:05d}.mp4")
         writer = cv2.VideoWriter(mp4_path, fourcc, fps, (width, height))
 
@@ -87,3 +89,29 @@ def generate(video_idx, out_dir, width, height, fps, duration_seconds, save_mp4=
     )
 
     return npz_path
+
+# Install given amount of data
+def main(
+    num_videos=200,
+    out_dir="data",
+    width=320,
+    height=180,
+    fps=30,
+    duration_seconds=2.0,
+    save_mp4=True,
+    seed=None,
+):
+    if seed is None:
+        random.seed(seed)
+        np.random.seed(seed)
+
+    os.makedirs(out_dir, exist_ok=True)
+
+    for i in range(num_videos):
+        path = generate(i, out_dir, width, height, fps, duration_seconds, save_mp4=save_mp4)
+        print(f"[{i + 1}/{num_videos} saved path {path}]")
+
+    print(f"Done. {num_videos} clips written to '{out_dir}'.")
+
+if __name__ == "__main__":
+    main()
