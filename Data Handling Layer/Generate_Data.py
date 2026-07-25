@@ -63,7 +63,7 @@ def generate(video_idx, out_dir, width, height, fps, duration_seconds, save_mp4=
 
     for t in range(total_frames):
         bg_offset += params["animation_speed"]
-        fg_offset += params["animation_speed"]
+        fg_offset -= params["animation_speed"]
         frame_bgr = animator.animate_frame_vectorized(mask, bg_offset, fg_offset)
 
         frames[t] = frame_bgr[:,:,0]
