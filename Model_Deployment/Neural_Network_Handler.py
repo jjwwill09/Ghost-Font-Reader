@@ -3,6 +3,7 @@ import os
 import cv2
 import numpy as np
 import torch
+import time
 
 current_dir = os.path.dirname(__file__)
 file_path = os.path.abspath(os.path.join(current_dir, "..", "Model_Layer", "Train_Optical_Flow.py"))
@@ -27,7 +28,7 @@ h_target = checkpoint.get("height", 180)
 w_target = checkpoint.get("width", 320)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-video_path = os.path.join(script_dir, "Test_Data", "video_00000.mp4") # CONFIG: CHANGE INPUT VIDEO HERE <-----------------------------------------------------------------------------------
+video_path = os.path.join(script_dir, "Test_Data", "video_00012.mp4") # CONFIG: CHANGE INPUT VIDEO HERE <-----------------------------------------------------------------------------------
 cap = cv2.VideoCapture(video_path)
 
 ret, first_frame = cap.read()
@@ -50,6 +51,13 @@ cv2.resizeWindow('Neural Net Isolated Motion', w_target, h_target)
 def nothing(x): pass
 cv2.createTrackbar('NN Threshold x10', 'Neural Net Isolated Motion', 9, 10, nothing) # CONFIG: CHANGE HERE FOR SLIDER VALUES <-------------------------------------------------
 
+# Setup buffer to capture images
+BUFFER_DURATION = 3.0 # Seconds
+buffer_start_time = time.time()
+best_frame = None
+min_dark_pixels = float('inf')
+
+# Color Display
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
@@ -84,15 +92,48 @@ while cap.isOpened():
     hsv_mask_nn[moving_left_nn, 2] = 255
 
     segment_motion_nn = cv2.cvtColor(hsv_mask_nn, cv2.COLOR_HSV2BGR)
-    overlay_nn = cv2.addWeighted(frame_resized, 0.6, segment_motion_nn, 0.4, 0)
+
+    # Grab best frame
+    elapsed = time.time() - buffer_start_time
+    if elapsed < BUFFER_DURATION:
+        eval_grey = cv2.cvtColor(segment_motion_nn, cv2.COLOR_BGR2GRAY)
+        black_pixels = np.sum(eval_grey < 10)
+
+        if black_pixels < min_dark_pixels:
+            min_dark_pixels = black_pixels
+            best_frame = segment_motion_nn.copy()
+    else:
+        print("Buffer Complete")
+        break
+
+    # overlay_nn = cv2.addWeighted(frame_resized, 0.6, segment_motion_nn, 0.4, 0)
 
     cv2.imshow('Original Video (Model Scale)', frame_resized)
     cv2.imshow('Neural Net Isolated Motion', segment_motion_nn)
 
     prev_gray = gray
-
+    cv2.waitKey(30)
+    """
     if cv2.waitKey(30) & 0xFF == ord('q'):
         break
+    """
 
 cap.release()
 cv2.destroyAllWindows()
+
+# Clean up final frame image
+if best_frame is not None:
+    clean_grey = cv2.cvtColor(best_frame, cv2.COLOR_BGR2GRAY)
+
+    _, thresh = cv2.threshold(clean_grey, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    opened = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1) # CONFIG: Change window and iteration sizes <-------------------------------------------------------------------------------
+
+    final_for_nn = cv2.bitwise_not(opened)
+
+    output_filename = 'clean_nn.png'
+    cv2.imwrite(output_filename, final_for_nn)
+    print("Extracted clean text")
+else:
+    print("No files")
