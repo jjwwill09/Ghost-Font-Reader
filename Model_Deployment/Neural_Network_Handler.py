@@ -28,7 +28,7 @@ h_target = checkpoint.get("height", 180)
 w_target = checkpoint.get("width", 320)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-video_path = os.path.join(script_dir, "Test_Data", "video_00012.mp4") # CONFIG: CHANGE INPUT VIDEO HERE <-----------------------------------------------------------------------------------
+video_path = os.path.join(script_dir, "Test_Data", "video_00000.mp4") # CONFIG: CHANGE INPUT VIDEO HERE <-----------------------------------------------------------------------------------
 cap = cv2.VideoCapture(video_path)
 
 ret, first_frame = cap.read()
@@ -54,8 +54,8 @@ cv2.createTrackbar('NN Threshold x10', 'Neural Net Isolated Motion', 9, 10, noth
 # Setup buffer to capture images
 BUFFER_DURATION = 3.0 # Seconds
 buffer_start_time = time.time()
-best_frame = None
-min_dark_pixels = float('inf')
+accumulated_mask = np.zeros((h_target, w_target), dtype=np.float32)
+frame_count = 0
 
 # Color Display
 while cap.isOpened():
@@ -93,15 +93,12 @@ while cap.isOpened():
 
     segment_motion_nn = cv2.cvtColor(hsv_mask_nn, cv2.COLOR_HSV2BGR)
 
-    # Grab best frame
+    # Frame accumulation
     elapsed = time.time() - buffer_start_time
     if elapsed < BUFFER_DURATION:
         eval_grey = cv2.cvtColor(segment_motion_nn, cv2.COLOR_BGR2GRAY)
-        black_pixels = np.sum(eval_grey < 10)
-
-        if black_pixels < min_dark_pixels:
-            min_dark_pixels = black_pixels
-            best_frame = segment_motion_nn.copy()
+        accumulated_mask += eval_grey
+        frame_count += 1
     else:
         print("Buffer Complete")
         break
@@ -122,10 +119,10 @@ cap.release()
 cv2.destroyAllWindows()
 
 # Clean up final frame image
-if best_frame is not None:
-    clean_grey = cv2.cvtColor(best_frame, cv2.COLOR_BGR2GRAY)
+if frame_count > 0:
+    average_frame = (accumulated_mask/frame_count).astype(np.uint8)
 
-    _, thresh = cv2.threshold(clean_grey, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    _, thresh = cv2.threshold(average_frame, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     opened = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1) # CONFIG: Change window and iteration sizes <-------------------------------------------------------------------------------
