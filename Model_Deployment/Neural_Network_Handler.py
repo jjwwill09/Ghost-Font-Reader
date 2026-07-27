@@ -33,7 +33,7 @@ h_target = checkpoint.get("height", 180)
 w_target = checkpoint.get("width", 320)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-video_path = os.path.join(script_dir, "Test_Data", "video_00012.mp4") # CONFIG: CHANGE INPUT VIDEO HERE <-----------------------------------------------------------------------------------
+video_path = os.path.join(script_dir, "Test_Data", "video_00032.mp4") # CONFIG: CHANGE INPUT VIDEO HERE <-----------------------------------------------------------------------------------
 cap = cv2.VideoCapture(video_path)
 
 ret, first_frame = cap.read()
@@ -122,18 +122,45 @@ while cap.isOpened():
 # cv2.destroyAllWindows()
 
 # Clean up final frame image
+"""
+
+Uncomment and use this loop to test:
+different kernel sizes
+different iteration lengths
+
+for w in range(1, 11, 2):
+    for i in range(1, 10):
+        if frame_count > 0:
+            average_frame = (accumulated_mask/frame_count).astype(np.uint8)
+
+            _, thresh = cv2.threshold(average_frame, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (w, w))
+            opened = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=i)
+            final_for_nn = cv2.bitwise_not(opened)
+
+            output_filename = f'clean_nn_{w}_{i}.png'
+            cv2.imwrite(output_filename, final_for_nn)
+            print("Extracted clean text")
+        else:
+            print("No files")
+"""
+
 if frame_count > 0:
     average_frame = (accumulated_mask/frame_count).astype(np.uint8)
 
     _, thresh = cv2.threshold(average_frame, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-    opened = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1) # CONFIG: Change window and iteration sizes <-------------------------------------------------------------------------------
+    window_size = 3 # CONFIG: Change window and iteration sizes best result (3, 5)<-------------------------------------------------------------------------------
+    iterations = 1
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (window_size, window_size))
+    opened = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=window_size) 
 
     final_for_nn = cv2.bitwise_not(opened)
 
-    output_filename = 'clean_nn.png'
+    output_filename = f'clean_nn.png'
     cv2.imwrite(output_filename, final_for_nn)
     print("Extracted clean text")
 else:
-    print("No files")
+     print("No files")
