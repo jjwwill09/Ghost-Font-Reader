@@ -16,7 +16,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Running Neural Network math on: {device}")
 
 # Load the model from the saved PyTorch weights
-checkpoint_path = "Model_Files/best_conv_model.pt"
+checkpoint_path = "Model_Files/Farne_Back_Models/best_conv_model.pt"
 checkpoint = torch.load(checkpoint_path, map_location=device)
 
 model = UNet().to(device)
@@ -26,7 +26,8 @@ model.eval()
 h_target = checkpoint.get("height", 180)
 w_target = checkpoint.get("width", 320)
 
-video_path = "Test_Data/video_00000.mp4" # CONFIG: CHANGE INPUT VIDEO HERE <-----------------------------------------------------------------------------------
+script_dir = os.path.dirname(os.path.abspath(__file__))
+video_path = os.path.join(script_dir, "Test_Data", "video_00000.mp4") # CONFIG: CHANGE INPUT VIDEO HERE <-----------------------------------------------------------------------------------
 cap = cv2.VideoCapture(video_path)
 
 ret, first_frame = cap.read()
