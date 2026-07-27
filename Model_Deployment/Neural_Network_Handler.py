@@ -48,7 +48,7 @@ cv2.namedWindow('Neural Net Isolated Motion', cv2.WINDOW_NORMAL)
 cv2.resizeWindow('Neural Net Isolated Motion', w_target, h_target)
 
 def nothing(x): pass
-cv2.createTrackbar('NN Threshold x10', 'Neural Net Isolated Motion', 9, 20, nothing) # CONFIG: CHANGE HERE FOR SLIDER VALUES <-------------------------------------------------
+cv2.createTrackbar('NN Threshold x10', 'Neural Net Isolated Motion', 9, 10, nothing) # CONFIG: CHANGE HERE FOR SLIDER VALUES <-------------------------------------------------
 
 while cap.isOpened():
     ret, frame = cap.read()
