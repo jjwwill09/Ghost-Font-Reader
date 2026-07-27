@@ -1,3 +1,8 @@
+"""
+All UI elements have been commented out.
+Remove the comments to see the live output fromt he NN.
+"""
+
 import importlib.util
 import os
 import cv2
@@ -28,7 +33,7 @@ h_target = checkpoint.get("height", 180)
 w_target = checkpoint.get("width", 320)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-video_path = os.path.join(script_dir, "Test_Data", "video_00000.mp4") # CONFIG: CHANGE INPUT VIDEO HERE <-----------------------------------------------------------------------------------
+video_path = os.path.join(script_dir, "Test_Data", "video_00012.mp4") # CONFIG: CHANGE INPUT VIDEO HERE <-----------------------------------------------------------------------------------
 cap = cv2.VideoCapture(video_path)
 
 ret, first_frame = cap.read()
@@ -42,14 +47,14 @@ prev_gray = cv2.cvtColor(prev_frame_resized, cv2.COLOR_BGR2GRAY)
 
 hsv_mask_nn = np.zeros_like(prev_frame_resized)
 
-cv2.namedWindow('Original Video (Model Scale)', cv2.WINDOW_NORMAL)
-cv2.resizeWindow('Original Video (Model Scale)', w_target, h_target)
+# cv2.namedWindow('Original Video (Model Scale)', cv2.WINDOW_NORMAL)
+# cv2.resizeWindow('Original Video (Model Scale)', w_target, h_target)
 
-cv2.namedWindow('Neural Net Isolated Motion', cv2.WINDOW_NORMAL)
-cv2.resizeWindow('Neural Net Isolated Motion', w_target, h_target)
+# cv2.namedWindow('Neural Net Isolated Motion', cv2.WINDOW_NORMAL)
+# cv2.resizeWindow('Neural Net Isolated Motion', w_target, h_target)
 
-def nothing(x): pass
-cv2.createTrackbar('NN Threshold x10', 'Neural Net Isolated Motion', 9, 10, nothing) # CONFIG: CHANGE HERE FOR SLIDER VALUES <-------------------------------------------------
+# def nothing(x): pass
+# cv2.createTrackbar('NN Threshold x10', 'Neural Net Isolated Motion', 9, 10, nothing) # CONFIG: CHANGE HERE FOR SLIDER VALUES (GUI) <-------------------------------------------------
 
 # Setup buffer to capture images
 BUFFER_DURATION = 3.0 # Seconds
@@ -78,8 +83,8 @@ while cap.isOpened():
     dx_nn = flow_nn[..., 0]
     mag_nn = np.sqrt(flow_nn[..., 0]**2 + flow_nn[..., 1]**2)
 
-    slider_val = cv2.getTrackbarPos('NN Threshold x10', 'Neural Net Isolated Motion')
-    NN_MOTION_THRESHOLD = slider_val / 10.0  
+    # slider_val = cv2.getTrackbarPos('NN Threshold x10', 'Neural Net Isolated Motion')
+    NN_MOTION_THRESHOLD = 9 / 10.0  # CONFIG: CHANGE HERE FOR THRESHOLD OR REPLACE WITH 'slider_val' for GUI <-----------------------------------------------------------------------
 
     moving_right_nn = (dx_nn > NN_MOTION_THRESHOLD) & (mag_nn > NN_MOTION_THRESHOLD)
     moving_left_nn = (dx_nn < -NN_MOTION_THRESHOLD) & (mag_nn > NN_MOTION_THRESHOLD)
@@ -103,10 +108,8 @@ while cap.isOpened():
         print("Buffer Complete")
         break
 
-    # overlay_nn = cv2.addWeighted(frame_resized, 0.6, segment_motion_nn, 0.4, 0)
-
-    cv2.imshow('Original Video (Model Scale)', frame_resized)
-    cv2.imshow('Neural Net Isolated Motion', segment_motion_nn)
+    # cv2.imshow('Original Video (Model Scale)', frame_resized)
+    # cv2.imshow('Neural Net Isolated Motion', segment_motion_nn)
 
     prev_gray = gray
     cv2.waitKey(30)
@@ -115,8 +118,8 @@ while cap.isOpened():
         break
     """
 
-cap.release()
-cv2.destroyAllWindows()
+# cap.release()
+# cv2.destroyAllWindows()
 
 # Clean up final frame image
 if frame_count > 0:
