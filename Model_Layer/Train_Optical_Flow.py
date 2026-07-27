@@ -62,27 +62,29 @@ def conv_block(in_ch, out_ch, stride=1):
         nn.LeakyReLU(0.1, inplace=True), # Activation function to add non-linearity
     )
 
+# 1,465,762 Parameter U-Net Style Neural Network Architecture
 class UNet(nn.Module):
     def __init__(self, base_ch=32):
         super().__init__()
-        # Encoder (Down Sampling/Compression)
+        # Encoder (Down Sampling/Compression): 389,088 Parameters
         c = base_ch
-        self.enc1 = conv_block(2, c, stride=1)
-        self.enc2 = conv_block(c, c * 2, stride=2)
-        self.enc3 = conv_block(c * 2, c * 4, stride=2)
-        self.enc4 = conv_block(c * 4, c * 8, stride=2)
+        self.enc1 = conv_block(2, c, stride=1) # 672 Params
+        self.enc2 = conv_block(c, c * 2, stride=2) # 18,624 Params
+        self.enc3 = conv_block(c * 2, c * 4, stride=2) # 74,112 Params
+        self.enc4 = conv_block(c * 4, c * 8, stride=2) # 295,680 Params
 
-        # Decoder (Up sampling/Reconstruction)
-        self.up3 = nn.ConvTranspose2d(c * 8, c * 4, kernel_size=4, stride=2, padding=1)
-        self.dec3 = conv_block(c * 8, c * 4)
+        # Decoder (Up sampling/Reconstruction): 1,076,096 Parameters
+        self.up3 = nn.ConvTranspose2d(c * 8, c * 4, kernel_size=4, stride=2, padding=1) # 524,416 Params
+        self.dec3 = conv_block(c * 8, c * 4) # 295,296 Params
 
-        self.up2 = nn.ConvTranspose2d(c * 4, c * 2, kernel_size=4, stride=2, padding=1)
-        self.dec2 = conv_block(c * 4, c * 2)
+        self.up2 = nn.ConvTranspose2d(c * 4, c * 2, kernel_size=4, stride=2, padding=1) # 131,136 Params
+        self.dec2 = conv_block(c * 4, c * 2) # 73,920 Params
 
-        self.up1 = nn.ConvTranspose2d(c * 2, c, kernel_size=4, stride=2, padding=1)
-        self.dec1 = conv_block(c * 2, c)
+        self.up1 = nn.ConvTranspose2d(c * 2, c, kernel_size=4, stride=2, padding=1) # 32,800 Params
+        self.dec1 = conv_block(c * 2, c) # 18,528 Params
 
-        self.flow_head = nn.Conv2d(c, 2, kernel_size=3, padding=1)
+        # Flow Head: 578 Parameters
+        self.flow_head = nn.Conv2d(c, 2, kernel_size=3, padding=1) # 578 Params
 
     # Helps fix size mismatches when pairing layers (Padding)
     def _pad_and_cat(self, upsampled, skip):
