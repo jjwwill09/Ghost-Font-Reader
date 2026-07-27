@@ -1,3 +1,9 @@
+"""
+THE FOLLOWING CODE IS ADAPTED FROM:
+https://github.com/TimeBlindness/time-blindness/tree/main
+ORIGINAL AUTHOR(S) / TimeBlindness Project
+"""
+
 import numpy as np
 import cv2
 from PIL import Image, ImageDraw, ImageFont
