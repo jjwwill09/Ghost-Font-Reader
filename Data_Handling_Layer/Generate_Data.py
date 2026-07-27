@@ -1,7 +1,6 @@
 import os
 import string
 import random
-import argparse
 
 import numpy as np
 import cv2
@@ -92,6 +91,7 @@ def generate(video_idx, out_dir, width, height, fps, duration_seconds, save_mp4=
 
 # Install given amount of data
 def main(
+    # Hyper Parameter Config
     num_videos=200,
     out_dir="data",
     width=320,
