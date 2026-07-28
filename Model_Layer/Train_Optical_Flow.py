@@ -10,7 +10,7 @@ from torch.utils.data import Dataset, DataLoader
 
 # Load compressed np files of videos and use Farneback Optical Flow to convert them into training data
 class OpticalFlowDataset(Dataset):
-    def __init__(self, data_dir=None, files=None, frame_stride=1, farneback_params=None, augment=False):
+    def __init__(self, data_dir=None, files=None, augment=False): # Add frame_stride=1, farneback_params=None back if no pre-computing
         if files is not None:
             self.files = list(files)
         elif data_dir is not None:
@@ -21,8 +21,13 @@ class OpticalFlowDataset(Dataset):
         if not self.files:
             raise FileNotFoundError(f"No provided .npz files found (data_dir={data_dir})")
 
-        self.frame_stride = frame_stride
         self.augment = augment
+
+        """
+
+        Pre-Computing farneback
+
+        self.frame_stride = frame_stride
         self.farneback_params = farneback_params or dict(
             pyr_scale=0.5, levels=3, winsize=11,
             iterations=5, poly_n=7, poly_sigma=1.5, flags=0,
@@ -35,6 +40,7 @@ class OpticalFlowDataset(Dataset):
                 n_frames = data["frames"].shape[0]
             for t in range(0, n_frames - frame_stride):
                 self.index.append((file_idx, t))
+        """
 
     # Returns valid number of frame pairs across the video
     def __len__(self):
@@ -190,7 +196,7 @@ def _split_files_by_video(data_dir, val_split, seed=42):
 # Train neural network
 def train(
     # CONFIG: HYPERPARAMETERS <----------------------------------------------------------------------------------------------------------------------
-    data_dir="data",
+    data_dir="processed_data",
     epochs=20,
     batch_size=8,
     lr=1e-4,
