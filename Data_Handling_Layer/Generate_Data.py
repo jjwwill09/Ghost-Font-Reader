@@ -10,13 +10,24 @@ from noise_generator import NoiseAnimator
 # Generate random text to be hidden in the ghost font
 def random_text(min_len=3, max_len=8):
     length = random.randint(min_len, max_len)
-    return "".join(random.choices(string.ascii_uppercase, k=length))
+    return "".join(random.choices(string.ascii_letters, k=length))
+
+# Random text size at explicit ratios so it isnt under represented
+def sample_font_size(height):
+    r = random.random()
+    if r < 0.45:
+        lo, hi = 0.05, 0.14
+    elif r <0.8:
+        lo, hi = 0.14, 0.3
+    else:
+        lo, hi = 0.3, 0.55
+    return(max(10, int(height * random.uniform(lo, hi))))
 
 # Generate randomized parameters for each file in the dataset
 def random_params(width, height):
     return dict(
         text=random_text(),
-        font_size=random.randint(max(20, height // 6), max(40, height // 2)),
+        font_size=sample_font_size(height),
         position=(
             random.randint(width // 4, 3 * width // 4),
             random.randint(height // 4, 3 * height // 4),
@@ -92,13 +103,13 @@ def generate(video_idx, out_dir, width, height, fps, duration_seconds, save_mp4=
 # Install given amount of data
 def main(
     # Hyper Parameter Config
-    num_videos=200,
+    num_videos=400,
     out_dir="data",
-    width=320,
-    height=180,
+    width=640,
+    height=360,
     fps=30,
     duration_seconds=2.0,
-    save_mp4=True,
+    save_mp4=False,
     seed=None,
 ):
     if seed is None:
