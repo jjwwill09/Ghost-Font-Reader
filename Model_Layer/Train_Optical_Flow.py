@@ -10,8 +10,8 @@ from torch.utils.data import Dataset, DataLoader
 
 # Load compressed np files of videos and use Farneback Optical Flow to convert them into training data
 class OpticalFlowDataset(Dataset):
-    def __init__(self, data_dir, files=None, frame_stride=1, farneback_params=None, augment=False):
-        if files is None:
+    def __init__(self, data_dir=None, files=None, frame_stride=1, farneback_params=None, augment=False):
+        if files is not None:
             self.files = list(files)
         elif data_dir is not None:
             self.files = sorted(glob.glob(os.path.join(data_dir, "*.npz")))
@@ -52,11 +52,11 @@ class OpticalFlowDataset(Dataset):
         if random.random() > 0.5:
             frame_pair = frame_pair[:,:,::-1].copy()
             flow = flow[:, :, ::-1].copy()
-            flow[0] *= -1
+            flow[0, :, :] *= -1
         if random.random() < 0.5:
             frame_pair = frame_pair[:, ::-1, :].copy()
             flow = flow[:, ::-1, :].copy()
-            flow[1] *= -1
+            flow[1, :, :] *= -1
         return frame_pair, flow
 
     # Fetches frame pair and Farnback output
