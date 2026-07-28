@@ -10,10 +10,16 @@ from torch.utils.data import Dataset, DataLoader
 
 # Load compressed np files of videos and use Farneback Optical Flow to convert them into training data
 class OpticalFlowDataset(Dataset):
-    def __init__(self, data_dir, frame_stride=1, farneback_params=None, augment=False):
-        self.files = sorted(glob.glob(os.path.join(data_dir, "*.npz")))
+    def __init__(self, data_dir, files=None, frame_stride=1, farneback_params=None, augment=False):
+        if files is None:
+            self.files = list(files)
+        elif data_dir is not None:
+            self.files = sorted(glob.glob(os.path.join(data_dir, "*.npz")))
+        else:
+            raise ValueError("Must provide either data_dir or files")
+
         if not self.files:
-            raise FileNotFoundError(f"No .npz files foundin {data_dir}")
+            raise FileNotFoundError(f"No provided .npz files found (data_dir={data_dir})")
 
         self.frame_stride = frame_stride
         self.augment = augment
