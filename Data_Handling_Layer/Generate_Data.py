@@ -5,7 +5,7 @@ import random
 import numpy as np
 import cv2
 
-from noise_generator import NoiseAnimator
+from .noise_generator import NoiseAnimator
 
 # Generate random text to be hidden in the ghost font
 def random_text(min_len=3, max_len=8):
@@ -13,9 +13,9 @@ def random_text(min_len=3, max_len=8):
     return "".join(random.choices(string.ascii_uppercase, k=length))
 
 # Generate randomized parameters for each file in the dataset
-def random_params(width, height):
+def random_params(width, height, text = None):
     return dict(
-        text=random_text(),
+        text=text if text else random_text(),
         font_size=random.randint(max(20, height // 6), max(40, height // 2)),
         position=(
             random.randint(width // 4, 3 * width // 4),
@@ -30,9 +30,9 @@ def random_params(width, height):
     )
 
 # Generate an mp4 video alongside a numpy file
-def generate(video_idx, out_dir, width, height, fps, duration_seconds, save_mp4=True):
+def generate(video_idx, out_dir, width, height, text, fps, duration_seconds, save_mp4=True):
     animator = NoiseAnimator(width=width, height=height, fps=fps)
-    params = random_params(width, height)
+    params = random_params(width, height, text)
 
     animator.direction = params["direction"]
     animator.animation_speed = params["animation_speed"]
@@ -55,8 +55,9 @@ def generate(video_idx, out_dir, width, height, fps, duration_seconds, save_mp4=
     )
 
     writer=None
+    mp4_path = None 
     if save_mp4:
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        fourcc = cv2.VideoWriter_fourcc(*"avc1")
         mp4_path = os.path.join(out_dir, f"video_{video_idx:05d}.mp4")
         writer = cv2.VideoWriter(mp4_path, fourcc, fps, (width, height))
 
@@ -65,11 +66,12 @@ def generate(video_idx, out_dir, width, height, fps, duration_seconds, save_mp4=
         fg_offset -= params["animation_speed"]
         frame_bgr = animator.animate_frame_vectorized(mask, bg_offset, fg_offset)
 
+
         frames[t] = frame_bgr[:,:,0]
         if writer is not None:
             writer.write(frame_bgr)
 
-    if writer is None:
+    if writer is not None:
         writer.release()
 
     npz_path = os.path.join(out_dir, f"video_{video_idx:05d}.npz")
@@ -87,7 +89,7 @@ def generate(video_idx, out_dir, width, height, fps, duration_seconds, save_mp4=
         speckle_size=params["speckle_size"],
     )
 
-    return npz_path
+    return mp4_path if save_mp4 else npz_path
 
 # Install given amount of data
 def main(
@@ -96,6 +98,7 @@ def main(
     out_dir="data",
     width=320,
     height=180,
+    text=None,
     fps=30,
     duration_seconds=2.0,
     save_mp4=True,
@@ -108,10 +111,12 @@ def main(
     os.makedirs(out_dir, exist_ok=True)
 
     for i in range(num_videos):
-        path = generate(i, out_dir, width, height, fps, duration_seconds, save_mp4=save_mp4)
+        path = generate(i, out_dir, width, height, text, fps, duration_seconds, save_mp4=save_mp4)
+        last_path = path
         print(f"[{i + 1}/{num_videos} saved path {path}]")
 
     print(f"Done. {num_videos} clips written to '{out_dir}'.")
+    return last_path
 
 if __name__ == "__main__":
     main()
