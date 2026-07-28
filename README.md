@@ -39,6 +39,7 @@ Defines the training pipeline that produces the best_conv_model
 ## Tools
 - TimeBlindness. (2026). GitHub - TimeBlindness/time-blindness: [CVPR 2026 🔥] Time Blindness: Why Video-Language Models Can’t See What Humans Can? GitHub. https://github.com/timeblindness/time-blindness
 - IcePanel Technologies Inc. (2026). IcePanel: Collaborative System Design & C4 Modelling. In IcePanel. https://icepanel.io/
+- E. Lu, “Ghost Font: The Anti-AI Font Only Humans Can Read.” Mixfont, 2026. Accessed: Jul. 24, 2026. Available: https://www.mixfont.com/ghost-f
 ## Forneback Optical Flow Examples/Resources
 - GeeksforGeeks. (2020). OpenCV The GunnarFarneback optical flow. In GeeksforGeeks. https://www.geeksforgeeks.org/python/opencv-the-gunnar-farneback-optical-flow/
 - Optical Flow in OpenCV (C++/Python) | LearnOpenCV #. (2021). In learnopencv.com. https://learnopencv.com/optical-flow-in-opencv/

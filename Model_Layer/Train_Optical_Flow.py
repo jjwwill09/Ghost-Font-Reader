@@ -1,5 +1,6 @@
 import os
 import glob
+import random
 import numpy as np
 import cv2
 import torch
@@ -9,15 +10,27 @@ from torch.utils.data import Dataset, DataLoader
 
 # Load compressed np files of videos and use Farneback Optical Flow to convert them into training data
 class OpticalFlowDataset(Dataset):
-    def __init__(self, data_dir, frame_stride=1, farneback_params=None):
-        self.files = sorted(glob.glob(os.path.join(data_dir, "*.npz")))
+    def __init__(self, data_dir=None, files=None, augment=False): # Add frame_stride=1, farneback_params=None back if no pre-computing
+        if files is not None:
+            self.files = list(files)
+        elif data_dir is not None:
+            self.files = sorted(glob.glob(os.path.join(data_dir, "*.npz")))
+        else:
+            raise ValueError("Must provide either data_dir or files")
+
         if not self.files:
-            raise FileNotFoundError(f"No .npz files foundin {data_dir}")
+            raise FileNotFoundError(f"No provided .npz files found (data_dir={data_dir})")
+
+        self.augment = augment
+
+        """
+
+        Pre-Computing farneback
 
         self.frame_stride = frame_stride
         self.farneback_params = farneback_params or dict(
-            pyr_scale=0.5, levels=3, winsize=15,
-            iterations=3, poly_n=5, poly_sigma=1.2, flags=0,
+            pyr_scale=0.5, levels=3, winsize=11,
+            iterations=5, poly_n=7, poly_sigma=1.5, flags=0,
         )
 
         self._video_cache = {}
@@ -27,6 +40,7 @@ class OpticalFlowDataset(Dataset):
                 n_frames = data["frames"].shape[0]
             for t in range(0, n_frames - frame_stride):
                 self.index.append((file_idx, t))
+        """
 
     # Returns valid number of frame pairs across the video
     def __len__(self):
@@ -38,6 +52,18 @@ class OpticalFlowDataset(Dataset):
             with np.load(self.files[file_idx]) as data:
                 self._video_cache[file_idx] = data["frames"]
         return self._video_cache[file_idx]
+
+    # Random horizontal and vertical flip applied consistently to both frame and flow
+    def _augment(self, frame_pair, flow):
+        if random.random() > 0.5:
+            frame_pair = frame_pair[:,:,::-1].copy()
+            flow = flow[:, :, ::-1].copy()
+            flow[0, :, :] *= -1
+        if random.random() < 0.5:
+            frame_pair = frame_pair[:, ::-1, :].copy()
+            flow = flow[:, ::-1, :].copy()
+            flow[1, :, :] *= -1
+        return frame_pair, flow
 
     # Fetches frame pair and Farnback output
     def __getitem__(self, idx):
@@ -51,6 +77,9 @@ class OpticalFlowDataset(Dataset):
 
         frame_pair = np.stack([f0, f1], axis=0).astype(np.float32) / 255.0
         flow = flow.astype(np.float32).transpose(2, 0, 1)
+
+        if self.augment:
+            frame_pair, flow = self._augment(frame_pair, flow)
 
         return torch.from_numpy(frame_pair), torch.from_numpy(flow)
 
@@ -149,10 +178,25 @@ def epe_loss(pred_flow, gt_flow):
     epe = torch.sqrt(torch.sum(diff**2, dim=1) + 1e-8)
     return epe.mean()
 
+# Splits .npz files into train/val before building datasets
+def _split_files_by_video(data_dir, val_split, seed=42):
+    files = sorted(glob.glob(os.path.join(data_dir, "*.npz")))
+    if not files:
+        raise FileNotFoundError(f"No .npz files found in {data_dir}")
+
+    rng = random.Random(seed)
+    files = files[:]
+    rng.shuffle(files)
+
+    n_val = max(1, int(len(files) * val_split))
+    val_files = files[:n_val]
+    train_files = files[n_val:]
+    return train_files, val_files
+
 # Train neural network
 def train(
     # CONFIG: HYPERPARAMETERS <----------------------------------------------------------------------------------------------------------------------
-    data_dir="data",
+    data_dir="processed_data",
     epochs=20,
     batch_size=8,
     lr=1e-4,
@@ -165,16 +209,16 @@ def train(
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     os.makedirs(checkpoint_dir, exist_ok=True)
 
-    dataset = OpticalFlowDataset(data_dir)
-    print(f"Dataset loaded succesfully! Total frame pairs: {len(dataset)}")
-    n_val = max(1, int(len(dataset) * val_split))
-    n_train = len(dataset) - n_val
-    train_set, val_set = torch.utils.data.random_split(dataset, [n_train, n_val])
+    train_files, val_files = _split_files_by_video(data_dir, val_split)
+    print(f"Videos: {len(train_files)} train / {len(val_files)} val")
+    train_set = OpticalFlowDataset(files=train_files, augment=True)
+    val_set = OpticalFlowDataset(files=val_files, augment=True)
+    print(f"Frame pairs: {len(train_set)} tain / {len(val_set)} val")
 
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=2)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=2)
 
-    sample_frames, _ = dataset[0]
+    sample_frames, _ = train_set[0]
     _, h, w = sample_frames.shape
 
     if model_type == "mlp":
