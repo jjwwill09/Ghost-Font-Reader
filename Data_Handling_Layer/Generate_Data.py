@@ -27,8 +27,8 @@ def sample_font_size(height):
 def random_params(width, height, text = None):
     return dict(
         text=text if text else random_text(),
-        font_size=random.randint(max(20, height // 6), max(40, height // 2)),
-        text=random_text(),
+        #font_size=random.randint(max(20, height // 6), max(40, height // 2)),
+        #text=random_text(),
         font_size=sample_font_size(height),
         position=(
             random.randint(width // 4, 3 * width // 4),

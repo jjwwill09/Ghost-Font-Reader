@@ -44,7 +44,7 @@ class OpticalFlowDataset(Dataset):
 
     # Returns valid number of frame pairs across the video
     def __len__(self):
-        return len(self.index)
+        return len(self.files)
 
     # Video memory cache mechanism (Quicker Data Loading)
     def _get_video(self, file_idx):
@@ -67,14 +67,13 @@ class OpticalFlowDataset(Dataset):
 
     # Fetches frame pair and Farnback output
     def __getitem__(self, idx):
-        file_idx, t = self.index[idx]
-        frames = self._get_video(file_idx)
-        f0 = frames[t]
-        f1 = frames[t + self.frame_stride]
+        # Read pre-computed pair
+        with np.load(self.files[idx]) as data:
+            f0 = data["f0"]
+            f1 = data["f1"]
+            flow = data["flow"]
 
-        # Computes Farneback optical flow for training data for our model
-        flow = cv2.calcOpticalFlowFarneback(f0, f1, None, **self.farneback_params)
-
+        # Structure like original tensor configurations
         frame_pair = np.stack([f0, f1], axis=0).astype(np.float32) / 255.0
         flow = flow.astype(np.float32).transpose(2, 0, 1)
 
