@@ -34,11 +34,16 @@ def random_content(content_type, content=None):
     return random_shape()
 
 # Generate randomized parameters for each file in the dataset
-def random_params(width, height, content_type="shape", content=None):
+def random_params(width, height, content_type="shape", content=None, text_variation=True):
+    if text_variation:
+        chosen_size = sample_font_size(height)
+    else:
+        chosen_size = int(height * 0.32)
+
     return dict(
         content_type=content_type,
         content=random_content(content_type, content),
-        size=sample_font_size(height),
+        size=chosen_size,
         #font_size=random.randint(max(20, height // 6), max(40, height // 2)),
         #text=random_text(),
         position=(
@@ -54,9 +59,9 @@ def random_params(width, height, content_type="shape", content=None):
 )
 
 # Generate an mp4 video alongside a numpy file
-def generate(video_idx, out_dir, width, height, content_type, content, fps, duration_seconds, save_mp4=True):
+def generate(video_idx, out_dir, width, height, content_type, content, fps, duration_seconds, save_mp4=True, text_variation=True):
     animator = NoiseAnimator(width=width, height=height, fps=fps)
-    params = random_params(width, height, content_type, content)
+    params = random_params(width, height, content_type, content, text_variation)
 
     animator.direction = params["direction"]
     animator.animation_speed = params["animation_speed"]
@@ -137,6 +142,7 @@ def main(
     duration_seconds=2.0,
     save_mp4=True,
     seed=None,
+    text_variation=True,
 ):
     if seed is None:
         random.seed(seed)
@@ -145,7 +151,7 @@ def main(
     os.makedirs(out_dir, exist_ok=True)
 
     for i in range(num_videos):
-        path = generate(i, out_dir, width, height, content_type, content, fps, duration_seconds, save_mp4=save_mp4)
+        path = generate(i, out_dir, width, height, content_type, content, fps, duration_seconds, save_mp4=save_mp4, text_variation=text_variation)
         last_path = path
         print(f"[{i + 1}/{num_videos} saved path {path}]")
 
