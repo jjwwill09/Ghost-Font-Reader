@@ -219,3 +219,11 @@ __marimo__/
 
 # Dataset
 data/
+shape_data/
+shape-pngs/
+test_shape_data/
+test_shape-pngs/
+test_text_data/
+test_text-pngs/
+text_data/
+text-pngs/
