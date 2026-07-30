@@ -232,3 +232,6 @@ chunked_data/
 
 # Outputs
 .png
+
+#local
+.DS_Store
