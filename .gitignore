@@ -219,3 +219,5 @@ __marimo__/
 
 # Dataset
 data/
+processed_data/
+chunked_data/
