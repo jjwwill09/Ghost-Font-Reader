@@ -166,8 +166,8 @@ class NoiseAnimator:
         elif shape_type == "rectangle":
             half = size // 2
             draw.rectangle([x-half, y-half, x+half, y+half], fill=255)
-        elif shape_type == "polygon":
-            sides = 5
+        elif shape_type.startswith("polygon"):
+            sides = int(shape_type.split("_")[1]) if "_" in shape_type else random.randint(3, 10)
             points = []
             for i in range(sides):
                 angle = (2 * np.pi * i / sides) - np.pi/2
