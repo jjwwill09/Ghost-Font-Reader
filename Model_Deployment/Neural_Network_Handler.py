@@ -22,7 +22,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Running Neural Network math on: {device}")
 
 # Load the model from the saved PyTorch weights
-checkpoint_path = "Model_Files/Farne_Back_Models/model_best.pth"
+checkpoint_path = "Model_Files/Farne_Back_Models/model_best_9.pth"
 checkpoint = torch.load(checkpoint_path, map_location=device)
 
 model = UNet().to(device)
