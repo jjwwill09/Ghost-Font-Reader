@@ -11,7 +11,9 @@ from .noise_generator import NoiseAnimator
 def random_text(min_len=3, max_len=8):
     length = random.randint(min_len, max_len)
     return "".join(random.choices(string.ascii_letters, k=length))
-
+def random_shape():
+    options = ["circle", "rectangle"] + [f"polygon_{sides}" for sides in range(3, 11)]
+    return random.choice(options)
 # Random text size at explicit ratios so it isnt under represented
 def sample_font_size(height):
     r = random.random()
@@ -23,29 +25,35 @@ def sample_font_size(height):
         lo, hi = 0.3, 0.55
     return(max(10, int(height * random.uniform(lo, hi))))
 
+def random_content(content_type, content=None):
+    if content:
+        return content
+    if content_type == "text":
+        return random_text()
+    return random_shape()
+
 # Generate randomized parameters for each file in the dataset
-def random_params(width, height, text = None):
+def random_params(width, height, content_type="shape", content=None):
     return dict(
-        text=text if text else random_text(),
-        font_size=random.randint(max(20, height // 6), max(40, height // 2)),
-        text=random_text(),
-        font_size=sample_font_size(height),
+        content_type=content_type,
+        content=random_content(content_type, content),
+        size=random.randint(max(20, height // 6), max(40, height // 2)),
         position=(
             random.randint(width // 4, 3 * width // 4),
             random.randint(height // 4, 3 * height // 4),
         ),
-        direction=random.choices(["horizontal", "vertical"]),
+        direction="horizontal",
         animation_speed=random.uniform(0.5, 0.6),
         bg_noise_density=random.uniform(0.3, 0.7),
         fg_noise_density=random.uniform(0.3, 0.7),
         use_same_noise=random.random() < 0.5,
         speckle_size=random.choice([1, 1, 1, 2, 3]), 
-    )
+)
 
 # Generate an mp4 video alongside a numpy file
-def generate(video_idx, out_dir, width, height, text, fps, duration_seconds, save_mp4=True):
+def generate(video_idx, out_dir, width, height, content_type, content, fps, duration_seconds, save_mp4=True):
     animator = NoiseAnimator(width=width, height=height, fps=fps)
-    params = random_params(width, height, text)
+    params = random_params(width, height, content_type, content)
 
     animator.direction = params["direction"]
     animator.animation_speed = params["animation_speed"]
@@ -61,17 +69,24 @@ def generate(video_idx, out_dir, width, height, text, fps, duration_seconds, sav
 
     frames = np.zeros((total_frames, height, width), dtype=np.uint8)
 
-    mask = animator.create_text_mask(
-        params["text"], 
-        params["position"], 
-        font_size=params["font_size"],
-    )
+    if params["content_type"] == "text":
+        mask = animator.create_text_mask(
+            params["content"],
+            params["position"],
+            font_size=params["size"],
+        )
+    else:
+        mask = animator.create_shape_mask(
+            params["content"],
+            params["position"],
+            size=params["size"],
+        )
 
     writer=None
     mp4_path = None 
     if save_mp4:
         fourcc = cv2.VideoWriter_fourcc(*"avc1")
-        mp4_path = os.path.join(out_dir, f"video_{video_idx:05d}.mp4")
+        mp4_path = os.path.join(out_dir, f"{params['content']}_{video_idx:05d}.mp4")
         writer = cv2.VideoWriter(mp4_path, fourcc, fps, (width, height))
 
     for t in range(total_frames):
@@ -87,12 +102,14 @@ def generate(video_idx, out_dir, width, height, text, fps, duration_seconds, sav
     if writer is not None:
         writer.release()
 
+    return mp4_path if save_mp4 else None
+
     npz_path = os.path.join(out_dir, f"video_{video_idx:05d}.npz")
     np.savez_compressed(
         npz_path,
         frames=frames,
-        text=params["text"],
-        font_size=params["font_size"],
+        shape=params["shape"],
+        size=params["size"],
         position=np.array(params["position"]),
         direction=params["direction"],
         animation_speed=params["animation_speed"],
@@ -108,10 +125,11 @@ def generate(video_idx, out_dir, width, height, text, fps, duration_seconds, sav
 def main(
     # Hyper Parameter Config
     num_videos=400,
-    out_dir="data",
+    out_dir="test_shape_data", #rename, to train make one shape and one text and repeat for testing
     width=320,
     height=180,
-    text=None,
+    content_type="shape", #rename as described above
+    content=None,
     fps=30,
     duration_seconds=2.0,
     save_mp4=False,
@@ -124,7 +142,7 @@ def main(
     os.makedirs(out_dir, exist_ok=True)
 
     for i in range(num_videos):
-        path = generate(i, out_dir, width, height, text, fps, duration_seconds, save_mp4=save_mp4)
+        path = generate(i, out_dir, width, height, content_type, content, fps, duration_seconds, save_mp4=save_mp4)
         last_path = path
         print(f"[{i + 1}/{num_videos} saved path {path}]")
 
