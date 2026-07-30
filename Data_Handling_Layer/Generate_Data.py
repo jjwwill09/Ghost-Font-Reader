@@ -5,7 +5,7 @@ import random
 import numpy as np
 import cv2
 
-from .noise_generator import NoiseAnimator
+from noise_generator import NoiseAnimator
 
 # Generate random text to be hidden in the ghost font
 def random_text(min_len=3, max_len=8):
@@ -14,6 +14,7 @@ def random_text(min_len=3, max_len=8):
 def random_shape():
     options = ["circle", "rectangle"] + [f"polygon_{sides}" for sides in range(3, 11)]
     return random.choice(options)
+
 # Random text size at explicit ratios so it isnt under represented
 def sample_font_size(height):
     r = random.random()
@@ -126,15 +127,15 @@ def generate(video_idx, out_dir, width, height, content_type, content, fps, dura
 # Install given amount of data
 def main(
     # Hyper Parameter Config
-    num_videos=400,
+    num_videos=6,
     out_dir="test_shape_data", #rename, to train make one shape and one text and repeat for testing
-    width=320,
-    height=180,
-    content_type="shape", #rename as described above
+    width=640,
+    height=360,
+    content_type="text", #rename as described above
     content=None,
     fps=30,
     duration_seconds=2.0,
-    save_mp4=False,
+    save_mp4=True,
     seed=None,
 ):
     if seed is None:
