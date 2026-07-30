@@ -19,12 +19,12 @@ def random_shape():
 def sample_font_size(height):
     r = random.random()
     if r < 0.45:
-        lo, hi = 0.05, 0.14
+        lo, hi = 0.10, 0.18
     elif r <0.8:
-        lo, hi = 0.14, 0.3
+        lo, hi = 0.18, 0.32
     else:
-        lo, hi = 0.3, 0.55
-    return(max(10, int(height * random.uniform(lo, hi))))
+        lo, hi = 0.32, 0.55
+    return(max(14, int(height * random.uniform(lo, hi))))
 
 def random_content(content_type, content=None):
     if content:
