@@ -227,3 +227,8 @@ test_text_data/
 test_text-pngs/
 text_data/
 text-pngs/
+processed_data/
+chunked_data/
+
+# Outputs
+.png

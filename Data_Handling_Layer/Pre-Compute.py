@@ -39,5 +39,32 @@ def precompute_flow(raw_data_dir="data", output_dir="processed_data"):
             pair_counter += 1
     print(f"\nDone! saved {pair_counter} total pairs to '{output_dir}'.")
 
+def pack_to_chunks(pack_dir="processed_data", output_dir="chunked_data", chunk_size=1000):
+    os.makedirs(output_dir, exist_ok=True)
+    files = sorted(glob.glob(os.path.join(pack_dir, "*.npz")))
+
+    f0_list, f1_list, flow_list = [], [], []
+    chunk_count = 0
+
+    print(f"Grouping {len(files)} files into large arrays...")
+    for idx, f in enumerate(tqdm(files)):
+        with np.load(f) as data:
+            f0_list.append(data["f0"])
+            f1_list.append(data["f1"])
+            flow_list.append(data["flow"])
+
+        if len(f0_list) == chunk_size or idx == len(files) - 1:
+            np.savez_compressed(
+                os.path.join(output_dir, f"chunk_{chunk_count:03d}.npz"),
+                f0=np.array(f0_list),
+                f1=np.array(f1_list),
+                flow=np.array(flow_list),
+            )
+            f0_list, f1_list, flow_list = [], [], []
+            chunk_count += 1
+    print(f"\nSuccess! Compressed files down to {chunk_count} chunks.")
 if __name__ == "__main__":
     precompute_flow()
+    print("Pre-Compute Complete")
+    pack_to_chunks()
+    print("Packing Complete")

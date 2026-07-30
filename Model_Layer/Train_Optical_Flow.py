@@ -6,52 +6,51 @@ import cv2
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, Sampler
+from tqdm import tqdm
 
-# Load compressed np files of videos and use Farneback Optical Flow to convert them into training data
+# Handle loading pre-processed and chunked data files
 class OpticalFlowDataset(Dataset):
-    def __init__(self, data_dir=None, files=None, augment=False): # Add frame_stride=1, farneback_params=None back if no pre-computing
-        if files is not None:
-            self.files = list(files)
-        elif data_dir is not None:
-            self.files = sorted(glob.glob(os.path.join(data_dir, "*.npz")))
-        else:
-            raise ValueError("Must provide either data_dir or files")
-
-        if not self.files:
-            raise FileNotFoundError(f"No provided .npz files found (data_dir={data_dir})")
-
+    def __init__(self, chunk_files, augment=False):
+        self.chunk_files = list(chunk_files)
+        if not self.chunk_files:
+            raise FileNotFoundError("No chunk files provided")
         self.augment = augment
 
-        """
-
-        Pre-Computing farneback
-
-        self.frame_stride = frame_stride
-        self.farneback_params = farneback_params or dict(
-            pyr_scale=0.5, levels=3, winsize=11,
-            iterations=5, poly_n=7, poly_sigma=1.5, flags=0,
-        )
-
-        self._video_cache = {}
-        self.index = []
-        for file_idx, f in enumerate(self.files):
+        self.chunk_lengths = []
+        for f in self.chunk_files:
             with np.load(f) as data:
-                n_frames = data["frames"].shape[0]
-            for t in range(0, n_frames - frame_stride):
-                self.index.append((file_idx, t))
-        """
+                self.chunk_lengths.append(data["f0"].shape[0])
 
-    # Returns valid number of frame pairs across the video
+        self.chunk_offsets = np.cumsum([0] + self.chunk_lengths)
+        self.total_pairs = int(self.chunk_offsets[-1])
+
+        self._cached_chunk_idx = None
+        self._cached_chunk = None
+
+    # Returns the total pairs
     def __len__(self):
-        return len(self.index)
+        return self.total_pairs
 
-    # Video memory cache mechanism (Quicker Data Loading)
-    def _get_video(self, file_idx):
-        if file_idx not in self._video_cache:
-            with np.load(self.files[file_idx]) as data:
-                self._video_cache[file_idx] = data["frames"]
-        return self._video_cache[file_idx]
+    # Loads and manages memory cache for active chunks
+    def _load_chunk(self, chunk_idx):
+        if chunk_idx == self._cached_chunk_idx:
+            return self._cached_chunk
+
+        with np.load(self.chunk_files[chunk_idx]) as data:
+            self._cached_chunk = {
+                "f0": np.array(data["f0"]),
+                "f1": np.array(data["f1"]),
+                "flow": np.array(data["flow"]),
+            }
+        self._cached_chunk_idx = chunk_idx # Updates tracked index parameter
+        return self._cached_chunk
+
+    # Locates chunk item indexs
+    def _locate(self, idx):
+        chunk_idx = int(np.searchsorted(self.chunk_offsets, idx, side="right") - 1)
+        local_idx = idx - self.chunk_offsets[chunk_idx]
+        return chunk_idx, local_idx
 
     # Random horizontal and vertical flip applied consistently to both frame and flow
     def _augment(self, frame_pair, flow):
@@ -67,14 +66,15 @@ class OpticalFlowDataset(Dataset):
 
     # Fetches frame pair and Farnback output
     def __getitem__(self, idx):
-        file_idx, t = self.index[idx]
-        frames = self._get_video(file_idx)
-        f0 = frames[t]
-        f1 = frames[t + self.frame_stride]
+        chunk_idx, local_idx = self._locate(idx)
+        chunk = self._load_chunk(chunk_idx)
 
-        # Computes Farneback optical flow for training data for our model
-        flow = cv2.calcOpticalFlowFarneback(f0, f1, None, **self.farneback_params)
+        # Read chunked data
+        f0 = chunk["f0"][local_idx]
+        f1 = chunk["f1"][local_idx]
+        flow = chunk["flow"][local_idx]
 
+        # Structure like original tensor configurations
         frame_pair = np.stack([f0, f1], axis=0).astype(np.float32) / 255.0
         flow = flow.astype(np.float32).transpose(2, 0, 1)
 
@@ -82,6 +82,34 @@ class OpticalFlowDataset(Dataset):
             frame_pair, flow = self._augment(frame_pair, flow)
 
         return torch.from_numpy(frame_pair), torch.from_numpy(flow)
+
+# Shuffles data within chunks to keep harddrive reads efficient
+class ChunkAwareShuffleSampler(Sampler):
+    def __init__(self, chunk_offsets, seed=0):
+        self.chunk_offsets = chunk_offsets
+        self.num_chunks = len(self.chunk_offsets) - 1
+        self.seed = seed
+        self.epoch = 0
+
+    # Updates epoch
+    def set_epoch(self, epoch):
+        self.epoch = epoch
+
+    # Creates a randomized list of indicies
+    def __iter__(self):
+        rng = random.Random(self.seed + self.epoch)
+        chunk_order = list(range(self.num_chunks))
+        rng.shuffle(chunk_order)
+
+        for c in chunk_order:
+            start, end = int(self.chunk_offsets[c]), int(self.chunk_offsets[c+1])
+            local_indicies = list(range(start, end))
+            rng.shuffle(local_indicies)
+            yield from local_indicies
+
+    # Returns length
+    def __len__(self):
+        return int(self.chunk_offsets[-1])
 
 # Standard convolutional block
 def conv_block(in_ch, out_ch, stride=1):
@@ -146,31 +174,6 @@ class UNet(nn.Module):
         d1 = self.dec1(d1)
 
         return self.flow_head(d1)
-
-"""
-This was originally here to test an MLP model against the U-Net one.
-Considerably trivial, but open for teasting still.
-
-class DenseFlowMLP(nn.Module):
-    def __init__(self, height, width, hidden=2048):
-        super().__init__()
-        self.height = height
-        self.width = width
-        in_dim = 2 * height * width
-        out_dim = 2 * height * width
-        self.net = nn.Sequential(
-            nn.Linear(in_dim, hidden),
-            nn.ReLU(inplace=True),
-            nn.Linear(hidden, hidden),
-            nn.ReLU(inplace=True),
-            nn.Linear(hidden, out_dim),
-        )
-
-    def forward(self, x):
-        b = x.shape[0]
-        out = self.net(x.reshape(b, -1))
-        return out.reshape(b, 2, self.height, self.width)
-"""
         
 # Endpoint error loss
 def epe_loss(pred_flow, gt_flow):
@@ -179,76 +182,83 @@ def epe_loss(pred_flow, gt_flow):
     return epe.mean()
 
 # Splits .npz files into train/val before building datasets
-def _split_files_by_video(data_dir, val_split, seed=42):
-    files = sorted(glob.glob(os.path.join(data_dir, "*.npz")))
-    if not files:
-        raise FileNotFoundError(f"No .npz files found in {data_dir}")
+def _split_chunks(data_dir, val_split, seed=42):
+    chunk_files = sorted(glob.glob(os.path.join(data_dir, "*.npz")))
+
+    if not chunk_files:
+        raise FileNotFoundError(f"No chunk_*.npz files found in {data_dir}")
 
     rng = random.Random(seed)
-    files = files[:]
-    rng.shuffle(files)
+    chunk_files = chunk_files[:]
+    rng.shuffle(chunk_files)
 
-    n_val = max(1, int(len(files) * val_split))
-    val_files = files[:n_val]
-    train_files = files[n_val:]
+    n_val = max(1, int(len(chunk_files) * val_split))
+    val_files = chunk_files[:n_val]
+    train_files = chunk_files[n_val:]
     return train_files, val_files
 
 # Train neural network
 def train(
     # CONFIG: HYPERPARAMETERS <----------------------------------------------------------------------------------------------------------------------
-    data_dir="processed_data",
+    data_dir="chunked_data",
     epochs=20,
-    batch_size=8,
-    lr=1e-4,
+    batch_size=32,
+    lr=4e-4,
     val_split=0.1,
     checkpoint_dir="Model_Files",
-    model_type="conv",
     device=None,
 ):
     # Enviornment and Data setup
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using {device}")
     os.makedirs(checkpoint_dir, exist_ok=True)
 
-    train_files, val_files = _split_files_by_video(data_dir, val_split)
-    print(f"Videos: {len(train_files)} train / {len(val_files)} val")
-    train_set = OpticalFlowDataset(files=train_files, augment=True)
-    val_set = OpticalFlowDataset(files=val_files, augment=True)
-    print(f"Frame pairs: {len(train_set)} tain / {len(val_set)} val")
+    train_chunks, val_chunks = _split_chunks(data_dir, val_split)
+    print(f"Chunks: {len(train_chunks)} train / {len(val_chunks)} val")
 
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=2)
-    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=2)
+    train_set = OpticalFlowDataset(train_chunks, augment=True)
+    val_set = OpticalFlowDataset(val_chunks, augment=False)
 
-    sample_frames, _ = train_set[0]
-    _, h, w = sample_frames.shape
+    print(f"Total Entries: {len(train_set) + len(val_set)} | Train Split: {len(train_set)} | Val Split: {len(val_set)}")
 
-    if model_type == "mlp":
-        # model = DenseFlowMLP(h, w).to(device) # Uncomment this to use MLP Architecture
-        print("")
-    else:
-        model = UNet().to(device)
+    train_sampler = ChunkAwareShuffleSampler(train_set.chunk_offsets, seed=42)
 
-    # Main training configurations (Behavior)
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr) # Dynamicaly adjust learning rate
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs) # Slowers the learning rate (half cosine curve)
+    train_loader = DataLoader(
+        train_set,
+        batch_size=batch_size,
+        sampler=train_sampler,
+        num_workers=0,
+        pin_memory=True,
+    )
+    val_loader = DataLoader(
+        val_set,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=0,
+        pin_memory=True
+    )
 
-    best_val_epe = float("inf")
-    val_loss = float("inf")
+    model = UNet().to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    best_val_loss = float('inf')
 
     # Training and validation loop
+    print("\n=== Training Init Complete. Starting Optimization Loops ===")
     for epoch in range(1, epochs + 1):
+        train_sampler.set_epoch(epoch)
         model.train()
         train_loss = 0.0
         for frames, gt_flow in train_loader:
             frames, gt_flow = frames.to(device), gt_flow.to(device)
 
-            optimizer.zero_grad()
+            optimizer.zero_grad(set_to_none=True)
             pred_flow = model(frames)
             loss = epe_loss(pred_flow, gt_flow)
             loss.backward()
             optimizer.step()
 
             train_loss += loss.item() * frames.size(0)
-        train_loss /= len(train_set)
+        epoch_train_loss = train_loss / len(train_set)
 
         model.eval()
         val_loss = 0.0
@@ -258,28 +268,21 @@ def train(
                 pred_flow = model(frames)
                 loss = epe_loss(pred_flow, gt_flow)
                 val_loss += loss.item() * frames.size(0)
-        val_loss /= len(val_set)
+        epoch_val_loss = val_loss / len(val_set)
 
-        scheduler.step()
-
-        print(f"Epoch {epoch:3d}/{epochs} | train EPE {train_loss:.4f} | val EPE {val_loss:.4f}")
+        print(f"Epoch {epoch:02d}/{epochs:02d} | train EPE {epoch_train_loss:.4f} | val EPE {epoch_val_loss:.4f}")
 
         # Keeps track of the best model while training
-        if val_loss < best_val_epe:
-            best_val_epe = val_loss
+        if epoch_val_loss < best_val_loss:
+            best_val_loss = epoch_val_loss
+            save_path = os.path.join(checkpoint_dir, "model_best.pth")
             torch.save(
-                {"model_state": model.state_dict(), "epoch": epoch, "val_epe": val_loss,
-                 "model_type": model_type, "height": h, "width": w},
-                 os.path.join(checkpoint_dir, "best_conv_model.pt"),
-            )
-
-    # Saves the final model
-    torch.save(
-        {"model_state": model.state_dict(), "epoch": epochs, "val_epe": val_loss,
-         "model_type": model_type, "height": h, "width": w},
-         os.path.join(checkpoint_dir, "final_conv_model.pt"),
-    )
-    print(f"Done. Best val EPE: {best_val_epe:.4f}")
+                {"model_state": model.state_dict(), 
+                 "optimizer_state": optimizer.state_dict(),
+                 "epoch": epoch + 1, 
+                 "best_loss": best_val_loss,
+                }, 
+                save_path)
 
 if __name__ == "__main__":
     train()

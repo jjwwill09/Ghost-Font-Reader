@@ -37,7 +37,9 @@ def random_params(width, height, content_type="shape", content=None):
     return dict(
         content_type=content_type,
         content=random_content(content_type, content),
-        size=random.randint(max(20, height // 6), max(40, height // 2)),
+        size=sample_font_size(height),
+        #font_size=random.randint(max(20, height // 6), max(40, height // 2)),
+        #text=random_text(),
         position=(
             random.randint(width // 4, 3 * width // 4),
             random.randint(height // 4, 3 * height // 4),
