@@ -11,10 +11,10 @@ import torch
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-checkpoint_path = os.path.join(script_dir, "..", "Model_Files", "Farne_Back_Models", "best_conv_model.pt")
+checkpoint_path = os.path.join(script_dir, "..", "Model_Files", "Farne_Back_Models", "final_conv_model.pt")
 train_optical_flow_path = os.path.join(script_dir, "..", "Model_Layer", "Train_Optical_Flow.py")
 
-data_dir = os.path.join(script_dir, "..", "data")
+data_dir = os.path.join(script_dir, "..", "test_shape_data")
 png_data_dir = os.path.join(script_dir, "..", "png_data")
 
  
