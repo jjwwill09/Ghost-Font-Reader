@@ -221,3 +221,6 @@ __marimo__/
 data/
 processed_data/
 chunked_data/
+
+# Outputs
+.png
