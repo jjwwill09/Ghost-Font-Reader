@@ -10,6 +10,7 @@ from noise_generator import NoiseAnimator
 def random_text(min_len=3, max_len=8):
     length = random.randint(min_len, max_len)
     return "".join(random.choices(string.ascii_letters, k=length))
+
 def random_shape():
     options = ["circle", "rectangle"] + [f"polygon_{sides}" for sides in range(3, 11)]
     return random.choice(options)
@@ -33,7 +34,7 @@ def random_content(content_type, content=None):
     return random_shape()
 
 # Generate randomized parameters for each file in the dataset
-def random_params(width, height, content_type="shape", content=None, text_variation=True, orientation_variation=True):
+def random_params(width, height, content_type="shape", content=None, text_variation=True, orientation_variation=True, direction="horizontal"):
     if text_variation:
         chosen_size = sample_font_size(height)
     else:
@@ -54,7 +55,7 @@ def random_params(width, height, content_type="shape", content=None, text_variat
         #font_size=random.randint(max(20, height // 6), max(40, height // 2)),
         #text=random_text(),
         position=orientation,
-        direction="horizontal",
+        direction=direction,
         animation_speed=random.uniform(0.5, 0.6),
         bg_noise_density=random.uniform(0.3, 0.7),
         fg_noise_density=random.uniform(0.3, 0.7),
@@ -63,9 +64,9 @@ def random_params(width, height, content_type="shape", content=None, text_variat
 )
 
 # Generate an mp4 video alongside a numpy file
-def generate(video_idx, out_dir, width, height, content_type, content, fps, duration_seconds, save_mp4=True, text_variation=True, orientation_variation=True):
+def generate(video_idx, out_dir, width, height, content_type, content, fps, duration_seconds, save_mp4=True, text_variation=True, orientation_variation=True, direction="horizontal"):
     animator = NoiseAnimator(width=width, height=height, fps=fps)
-    params = random_params(width, height, content_type, content, text_variation, orientation_variation)
+    params = random_params(width, height, content_type, content, text_variation, orientation_variation, direction=direction)
 
     animator.direction = params["direction"]
     animator.animation_speed = params["animation_speed"]
@@ -120,8 +121,8 @@ def generate(video_idx, out_dir, width, height, content_type, content, fps, dura
 # Install given amount of data
 def main(
     # Hyper Parameter Config
-    num_videos=1350,
-    out_dir="text_data", #rename, to train make one shape and one text and repeat for testing
+    num_videos=6,
+    out_dir="data", 
     width=640,
     height=360,
     content_type="text", #rename as described above
@@ -132,15 +133,46 @@ def main(
     seed=None,
     text_variation=True,
     orientation_variation=True,
+    direction="horizontal",
+    balanced=False,
+    categories=None,
 ):
     if seed is None:
         random.seed(seed)
         np.random.seed(seed)
 
     os.makedirs(out_dir, exist_ok=True)
+    last_path = None
+
+    if balanced:
+        if categories is None:
+            categories = [
+                ("horizontal", "text"),
+                ("horizontal", "shape"),
+                ("vertical", "text"),
+                ("vertical", "shape"),
+            ]
+
+        n_cats = len(categories)
+        base_count = num_videos // n_cats
+        remainder = num_videos % n_cats
+        total_written = 0
+        for cat_i, (cat_direction, cat_content_type) in enumerate(categories):
+            count = base_count + (1 if cat_i < remainder else 0)
+            cat_out_dir = os.path.join(out_dir, f"{cat_direction}_{cat_content_type}")
+            os.makedirs(cat_out_dir, exist_ok=True)
+
+            for i in range(count):
+                path = generate(i, cat_out_dir, width, height, cat_content_type, content, fps, duration_seconds, save_mp4=save_mp4, text_variation=text_variation, orientation_variation=orientation_variation, direction=cat_direction)
+                last_path = path
+                total_written += 1
+                print(f"[{total_written}/{num_videos}] ({cat_direction}, {cat_content_type}) saved path {path}")
+
+        print(f"Done. {total_written} clips were written across {n_cats} categories under '{out_dir}'.")
+        return last_path
 
     for i in range(num_videos):
-        path = generate(i, out_dir, width, height, content_type, content, fps, duration_seconds, save_mp4=save_mp4, text_variation=text_variation, orientation_variation=orientation_variation)
+        path = generate(i, out_dir, width, height, content_type, content, fps, duration_seconds, save_mp4=save_mp4, text_variation=text_variation, orientation_variation=orientation_variation, direction=direction)
         last_path = path
         print(f"[{i + 1}/{num_videos} saved path {path}]")
 
