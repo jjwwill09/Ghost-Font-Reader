@@ -134,7 +134,7 @@ def main(
     text_variation=True,
     orientation_variation=True,
     direction="horizontal",
-    balanced=False,
+    balanced=False, # Change this for "multi-data"
     categories=None,
 ):
     if seed is None:
@@ -159,7 +159,7 @@ def main(
         total_written = 0
         for cat_i, (cat_direction, cat_content_type) in enumerate(categories):
             count = base_count + (1 if cat_i < remainder else 0)
-            cat_out_dir = os.path.join(out_dir, f"{cat_direction}_{cat_content_type}")
+            cat_out_dir = os.path.join(out_dir)
             os.makedirs(cat_out_dir, exist_ok=True)
 
             for i in range(count):
