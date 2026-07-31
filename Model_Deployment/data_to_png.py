@@ -11,15 +11,15 @@ import torch
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-checkpoint_path = os.path.join(script_dir, "..", "Model_Files", "Farne_Back_Models", "final_conv_model.pt")
+checkpoint_path = "Model_Files/Farne_Back_Models/model_best_9.pth"
 train_optical_flow_path = os.path.join(script_dir, "..", "Model_Layer", "Train_Optical_Flow.py")
 
-data_dir = os.path.join(script_dir, "..", "test_shape_data")
-png_data_dir = os.path.join(script_dir, "..", "png_data")
+data_dir = os.path.join(script_dir, "..", "words")
+png_data_dir = os.path.join(script_dir, "..", "words_pngs")
 
  
 buffer_duration = 3.0
-nn_motion_threshold = 0.9
+nn_motion_threshold = 9 / 10.0
 morph_kernel_size = (3, 3)
  
  
@@ -42,8 +42,8 @@ def load_model(checkpoint_path, train_optical_flow_path, device=None):
     model.load_state_dict(checkpoint["model_state"])
     model.eval()
  
-    h_target = checkpoint.get("height", 180)
-    w_target = checkpoint.get("width", 320)
+    h_target = checkpoint.get("height", 540)
+    w_target = checkpoint.get("width", 960)
  
     return model, device, h_target, w_target
  

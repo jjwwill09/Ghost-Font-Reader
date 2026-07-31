@@ -4,7 +4,6 @@ import random
 
 import numpy as np
 import cv2
-
 from noise_generator import NoiseAnimator
 
 # Generate random text to be hidden in the ghost font
@@ -93,7 +92,7 @@ def generate(video_idx, out_dir, width, height, content_type, content, fps, dura
     writer=None
     mp4_path = None 
     if save_mp4:
-        fourcc = cv2.VideoWriter_fourcc(*"avc1")
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         mp4_path = os.path.join(out_dir, f"{params['content']}_{video_idx:05d}.mp4")
         writer = cv2.VideoWriter(mp4_path, fourcc, fps, (width, height))
 
@@ -107,33 +106,17 @@ def generate(video_idx, out_dir, width, height, content_type, content, fps, dura
         if writer is not None:
             writer.write(frame_bgr)
 
-    if writer is not None:
-        writer.release()
-
+    
+    writer.release()
+    
     return mp4_path if save_mp4 else None
 
-    npz_path = os.path.join(out_dir, f"video_{video_idx:05d}.npz")
-    np.savez_compressed(
-        npz_path,
-        frames=frames,
-        shape=params["shape"],
-        size=params["size"],
-        position=np.array(params["position"]),
-        direction=params["direction"],
-        animation_speed=params["animation_speed"],
-        bg_noise_density=params["bg_noise_density"],
-        fg_noise_density=params["fg_noise_density"],
-        use_same_noise=params["use_same_noise"],
-        speckle_size=params["speckle_size"],
-    )
-
-    return mp4_path if save_mp4 else npz_path
 
 # Install given amount of data
 def main(
     # Hyper Parameter Config
-    num_videos=6,
-    out_dir="test_shape_data", #rename, to train make one shape and one text and repeat for testing
+    num_videos=1350,
+    out_dir="text_data", #rename, to train make one shape and one text and repeat for testing
     width=640,
     height=360,
     content_type="text", #rename as described above
@@ -142,7 +125,7 @@ def main(
     duration_seconds=2.0,
     save_mp4=True,
     seed=None,
-    text_variation=True,
+    text_variation=False,
 ):
     if seed is None:
         random.seed(seed)
