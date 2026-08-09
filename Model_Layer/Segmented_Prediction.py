@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
+from evaluate_png_predictions import load_ground_truth
  
 from extract_char_crops import segment_characters
  
@@ -210,7 +211,7 @@ def predict_by_segmentation(image_path, checkpoint_path="Model_Files/Farne_Back_
 if __name__ == "__main__":
     train_classifier(epochs=40, batch_size=32, lr=1e-3)
  
-    folder = "text_testing_pngs"
+    folder = "/workspaces/Ghost-Font-Reader/spooky-data_pngs"
     for i, filename in enumerate(os.listdir(folder)):
         truth = filename.split("_")[0]
         pred = predict_by_segmentation(os.path.join(folder, filename))

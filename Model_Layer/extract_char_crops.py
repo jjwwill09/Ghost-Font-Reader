@@ -8,9 +8,21 @@ OUT_DIR = "char_crops"
 
 
 def segment_characters(img):
-    _, thresh = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY_INV)
+    threshold_type = cv2.THRESH_BINARY if np.median(img) < 127 else cv2.THRESH_BINARY_INV
+    _, thresh = cv2.threshold(img, 127, 255, threshold_type)
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    boxes = [cv2.boundingRect(c) for c in contours if cv2.contourArea(c) > 20]
+    height, width = img.shape
+    boxes = []
+    for contour in contours:
+        x, y, box_width, box_height = cv2.boundingRect(contour)
+        touches_edge = (
+            x == 0
+            or y == 0
+            or x + box_width == width
+            or y + box_height == height
+        )
+        if cv2.contourArea(contour) > 20 and not touches_edge:
+            boxes.append((x, y, box_width, box_height))
     boxes.sort(key=lambda b: b[0])
 
     # merge components whose x-ranges overlap significantly (dot + stem cases)
