@@ -31,6 +31,7 @@ Defines the training pipeline that produces the best_conv_model
 # Usage
 
 **To generate new ghost font mp4s, run Generate_Data.py**
+- to generate batch data, note that you have to update/edit the directory names on Generate_Data as well as Batch_Neural_Net_Handler.py to conver to pngs efficiently
 **To train a new model, run Train_Optical_Flow.py**
 **To use an existing model to visualize the hidden message, use Neural_Network_Handler.py**
 

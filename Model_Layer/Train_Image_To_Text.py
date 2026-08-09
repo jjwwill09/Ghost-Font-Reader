@@ -117,7 +117,7 @@ class TextLineDataset(Dataset):
         base = os.path.splitext(os.path.basename(path))[0]
         npz_path = os.path.join(self.label_dir, base + ".npz")
 
-        label_text = base.split("_")[0]
+        label_text = base.rsplit("_", 1)[0]
         #print(base, label_text)
         image = load_and_preprocess(path)
         label = torch.tensor(encode_text(label_text), dtype=torch.long)
@@ -231,7 +231,7 @@ def evaluate(model, loader, ctc_loss, device):
     return avg_loss, char_error_rate, exact_acc
 
 def train(
-        data_dir = "png_data",
+        data_dir = "test_text-pngs",
         label_dir = "data",
         epochs = 50,
         batch_size = 8,
@@ -436,21 +436,22 @@ def predict(image_path, checkpoint_path="Model_Files/Farne_Back_Models/crnn_ocr.
     return text
 
 if __name__ == "__main__":
-    crnnpath = "Model_Files/Farne_Back_Models/crnn_ocr_v4.pt"
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    crnnpath = os.path.join(project_root, "Model_Files", "Farne_Back_Models", "crnn_ocr_v4.pt")
     train(
         epochs=100, 
         batch_size=12, 
         checkpoint_path=crnnpath, 
         lr=1e-3, 
-        data_dir="text_data_pngs",
+        data_dir=os.path.join(project_root, "Data_Handling_Layer", "text-pngs"),
         weight_decay = 2e-4
     )
 
  
-    folder = "text_testing_pngs"
+    folder = os.path.join(project_root, "Data_Handling_Layer", "test_text-pngs")
     best_path = crnnpath.replace(".pt", "_best.pt")
     for i, filename in enumerate(os.listdir(folder)):
         pred = predict(os.path.join(folder, filename), checkpoint_path=best_path)
-        truth = filename.split("_")[0]
+        truth = filename.rsplit("_", 1)[0]
         print(f"{i}  Truth: {truth}  Prediction: {pred}")
     
