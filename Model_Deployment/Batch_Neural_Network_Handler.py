@@ -23,7 +23,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Running Neural Network math on: {device}")
 
 # Load the model from the saved PyTorch weights
-checkpoint_path = "Model_Files/Farne_Back_Models/model_best_9.pth"
+checkpoint_path = "/workspaces/Ghost-Font-Reader/Model_Files/Farne_Back_Models/Omnidirectional/model_best_final.pth"
 checkpoint = torch.load(checkpoint_path, map_location=device)
 
 model = UNet().to(device)
@@ -42,10 +42,11 @@ data_root = os.path.abspath(os.path.join(script_dir, "..", ""))
 datasets = [
     #(os.path.join(data_root, "shape_data"), os.path.join(data_root, "shape-pngs")),
     #(os.path.join(data_root, "test_shape_data"), os.path.join(data_root, "test_shape_pngs")),
-    (os.path.join(data_root, "text_data"), os.path.join(data_root, "text_data_pngs"))
+    (os.path.join(data_root, "spooky-data"), os.path.join(data_root, "spooky-data_pngs"))
     #(os.path.join(data_root, "test_text_data"), os.path.join(data_root, "test_text-pngs")),
 ]
 
+video_paths = []
 for input_dir, output_dir in datasets:
     if not os.path.isdir(input_dir):
         print(f"Skipping missing input folder: {input_dir}")
@@ -85,11 +86,12 @@ def process_video(video_path):
     hsv_mask_nn = np.zeros_like(prev_frame_resized)
 
     BUFFER_DURATION = 3.0
-    buffer_start_time = time.time()
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    buffer_frame_limit = max(1, int(fps * BUFFER_DURATION)) if fps > 0 else 1
     accumulated_mask = np.zeros((h_target, w_target), dtype=np.float32)
     frame_count = 0
 
-    while cap.isOpened():
+    while cap.isOpened() and frame_count < buffer_frame_limit:
         ret, frame = cap.read()
         if not ret:
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -124,13 +126,9 @@ def process_video(video_path):
 
         segment_motion_nn = cv2.cvtColor(hsv_mask_nn, cv2.COLOR_HSV2BGR)
 
-        elapsed = time.time() - buffer_start_time
-        if elapsed < BUFFER_DURATION:
-            eval_grey = cv2.cvtColor(segment_motion_nn, cv2.COLOR_BGR2GRAY)
-            accumulated_mask += eval_grey
-            frame_count += 1
-        else:
-            break
+        eval_grey = cv2.cvtColor(segment_motion_nn, cv2.COLOR_BGR2GRAY)
+        accumulated_mask += eval_grey
+        frame_count += 1
 
         prev_gray = gray
 
