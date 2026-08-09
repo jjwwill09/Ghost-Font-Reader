@@ -1,0 +1,7 @@
+actual\predicted,circle,rectangle,polygon_3,polygon_4,polygon_5,polygon_6
+circle,33,0,21,0,35,0
+rectangle,0,0,0,0,0,0
+polygon_3,6,0,56,0,10,0
+polygon_4,23,0,19,1,35,0
+polygon_5,17,0,17,2,32,0
+polygon_6,0,0,0,0,0,0

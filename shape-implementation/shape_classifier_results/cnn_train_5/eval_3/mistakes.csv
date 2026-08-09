@@ -1,0 +1,79 @@
+image,actual,predicted,area_ratio,bbox_ratio,components,edge_density,likely_reason
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00022.png,circle,polygon_5,0.012899,0.018047,1,0.001510,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00026.png,circle,polygon_3,0.005074,0.006771,1,0.000929,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00029.png,circle,polygon_3,0.032977,0.042969,1,0.002422,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00032.png,circle,polygon_5,0.018498,0.025399,1,0.001780,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00050.png,circle,polygon_3,0.005903,0.007839,1,0.001033,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00056.png,circle,polygon_3,0.007773,0.010417,1,0.001172,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00057.png,circle,polygon_5,0.034284,0.045590,1,0.002474,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00064.png,circle,polygon_3,0.004648,0.006602,1,0.000877,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00073.png,circle,polygon_3,0.009878,0.013129,1,0.001337,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00076.png,circle,polygon_3,0.005977,0.008186,1,0.001007,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00081.png,circle,polygon_5,0.089861,0.118164,1,0.004002,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00083.png,circle,polygon_3,0.006992,0.009180,1,0.001120,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00107.png,circle,polygon_5,0.125747,0.163312,1,0.004809,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00110.png,circle,polygon_4,0.033181,0.044714,1,0.002457,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00113.png,circle,polygon_5,0.019605,0.025729,1,0.001892,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00120.png,circle,polygon_5,0.014049,0.017474,1,0.001597,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00121.png,circle,polygon_5,0.075069,0.095069,1,0.003672,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00128.png,circle,polygon_3,0.009188,0.012422,1,0.001259,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00130.png,circle,polygon_3,0.008997,0.011719,1,0.001276,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00134.png,circle,polygon_3,0.014015,0.019193,1,0.001563,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00137.png,circle,polygon_3,0.007947,0.010846,1,0.001207,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00166.png,circle,polygon_3,0.004987,0.006940,1,0.000929,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00171.png,circle,polygon_5,0.032799,0.043837,1,0.002457,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00181.png,circle,polygon_3,0.004983,0.006406,1,0.000937,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00183.png,circle,polygon_5,0.041450,0.055417,1,0.002726,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00191.png,circle,polygon_5,0.010725,0.014852,1,0.001372,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00192.png,circle,polygon_3,0.015195,0.020955,1,0.001658,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00202.png,circle,polygon_3,0.010252,0.013607,1,0.001354,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00203.png,circle,polygon_5,0.034883,0.046042,1,0.002517,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00208.png,circle,polygon_5,0.013694,0.017773,1,0.001597,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00209.png,circle,polygon_5,0.033481,0.043837,1,0.002465,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00216.png,circle,polygon_3,0.012044,0.016953,1,0.001484,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00230.png,circle,polygon_3,0.014787,0.018906,1,0.001623,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00233.png,circle,polygon_5,0.021775,0.028819,1,0.001997,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00238.png,circle,polygon_3,0.008997,0.011510,1,0.001285,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00251.png,circle,polygon_5,0.014345,0.018902,1,0.001615,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00253.png,circle,polygon_3,0.005182,0.006562,1,0.000964,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00254.png,circle,polygon_3,0.005981,0.008021,1,0.001033,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00258.png,circle,polygon_3,0.008381,0.010634,1,0.001241,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00265.png,circle,polygon_5,0.040065,0.051562,1,0.002726,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00269.png,circle,polygon_3,0.013889,0.019193,1,0.001563,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00272.png,circle,polygon_5,0.012977,0.018056,1,0.001502,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00285.png,circle,polygon_3,0.012422,0.016680,1,0.001493,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00291.png,circle,polygon_5,0.014379,0.018338,1,0.001615,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00294.png,circle,polygon_3,0.009349,0.012891,1,0.001285,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00295.png,circle,polygon_5,0.115790,0.149349,1,0.004583,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00306.png,circle,polygon_5,0.118715,0.154219,1,0.004618,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00307.png,circle,polygon_3,0.006259,0.008212,1,0.001042,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00311.png,circle,polygon_3,0.014136,0.019766,1,0.001536,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00316.png,circle,polygon_3,0.076263,0.098307,1,0.003724,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00330.png,circle,polygon_3,0.005642,0.007257,1,0.001007,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00340.png,circle,polygon_5,0.034813,0.046940,1,0.002509,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00342.png,circle,polygon_5,0.022036,0.029180,1,0.001944,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00349.png,circle,polygon_5,0.110460,0.146137,1,0.004505,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00350.png,circle,polygon_3,0.007244,0.009792,1,0.001120,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00351.png,circle,polygon_3,0.009106,0.012188,1,0.001276,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00356.png,circle,polygon_5,0.017370,0.022161,1,0.001771,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00382.png,circle,polygon_4,0.012222,0.016146,1,0.001458,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/circle_00384.png,circle,polygon_5,0.087782,0.116736,1,0.003967,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00021.png,polygon_3,circle,0.014206,0.025694,1,0.001927,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00037.png,polygon_3,circle,0.018498,0.035460,1,0.002214,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00052.png,polygon_3,polygon_5,0.016467,0.030130,1,0.002066,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00065.png,polygon_3,circle,0.053832,0.099141,1,0.003811,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00066.png,polygon_3,circle,0.036389,0.064249,1,0.003030,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00092.png,polygon_3,polygon_4,0.017535,0.033203,1,0.002179,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00101.png,polygon_3,circle,0.007587,0.013342,1,0.001363,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00118.png,polygon_3,circle,0.048181,0.090977,1,0.003663,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00131.png,polygon_3,circle,0.028446,0.051910,1,0.002708,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00164.png,polygon_3,polygon_5,0.024232,0.044531,1,0.002535,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00165.png,polygon_3,circle,0.011554,0.019414,1,0.001667,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00187.png,polygon_3,circle,0.009640,0.015091,1,0.001493,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00218.png,polygon_3,polygon_5,0.013455,0.023090,1,0.001753,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00248.png,polygon_3,polygon_5,0.043863,0.081875,1,0.003438,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00290.png,polygon_3,polygon_5,0.014974,0.025716,1,0.001910,small bounding box
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00338.png,polygon_3,circle,0.019553,0.035417,1,0.002283,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00372.png,polygon_3,circle,0.007374,0.012370,1,0.001311,shape too small or mostly lost in extraction
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00393.png,polygon_3,polygon_4,0.039518,0.073602,1,0.003255,geometric similarity or ambiguous mask
+/Users/family/Desktop/finalcap/Ghost-Font-Reader/Data_Handling_Layer/shape-test-pngs/polygon_3_00395.png,polygon_3,circle,0.044349,0.084792,1,0.003498,geometric similarity or ambiguous mask
